@@ -66,21 +66,21 @@ class SubProcess {
 		#elseif targetEnvironment(macCatalyst)
 		return "/usr/bin/login"
 		#else
-		return ["/var/jb/usr/bin/login", "/usr/bin/login"]
-			.first { (try? URL(fileURLWithPath: $0).checkResourceIsReachable()) == true } ?? "/usr/bin/login"
+		return ["/var/jb/bin/bash", "/bin/bash"]
+			.first { (try? URL(fileURLWithPath: $0).checkResourceIsReachable()) == true } ?? "/var/jb/bin/bash"
 		#endif
 	}()
 
 	private static var loginArgv: [String] {
-		#if targetEnvironment(simulator)
+		//#if targetEnvironment(simulator)
 		return ["bash", "--login", "-i"]
-		#else
+		//#else
 		// Interestingly, despite what login(1) seems to imply, it still seems we need to manually
 		// handle passing the -q (force hush login) flag. iTerm2 does this, so I guess it’s fine?
 		let hushLoginURL = URL(fileURLWithPath: NSHomeDirectory())/".hushlogin"
 		let hushLogin = (try? hushLoginURL.checkResourceIsReachable()) == true
-		return ["login", "-fp\(hushLogin ? "q" : "")", NSUserName(), loginHelper]
-		#endif
+		//return ["login", "-fp\(hushLogin ? "q" : "")", NSUserName(), loginHelper]
+		//#endif
 	}
 
 	private static let baseEnvp: [String] = [
@@ -131,7 +131,8 @@ class SubProcess {
 
 		// TODO: At some point, come up with some way to keep track of working directory changes.
 		// When opening a new tab, we can switch straight to the previous tab’s working directory.
-		let argv = (Self.loginArgv + [initialDirectory ?? homeDirectory, shell]).cStringArray
+		//let argv = (Self.loginArgv + [initialDirectory ?? homeDirectory, shell]).cStringArray
+		let argv = (Self.loginArgv).cStringArray
 		let envp = (Self.baseEnvp + [
 			"LANG=\(localeCode)"
 		]).cStringArray
